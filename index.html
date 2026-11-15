@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"The Ramsar Convention, an international treaty providing a framework for the conservation and wise use of wetlands, was adopted on 2 February 1971. In which city and country was this convention adopted?", options:["Geneva, Switzerland","Ramsar, Iran","Paris, France","Vienna, Austria"], answer:1},
+
+{q:"The Ramsar Convention, which provides an international framework for the conservation and sustainable utilisation of wetlands, officially came into force in which year?", options:["1971","1973","1975","1982"], answer:2},
+
+{q:"World Wetlands Day is observed annually on 2 February to commemorate the adoption of the Ramsar Convention in 1971. In which country is the city of Ramsar located?", options:["Iraq","Afghanistan","Turkey","Iran"], answer:3},
+
+{q:"India became a Contracting Party to the Ramsar Convention, an international agreement for wetland conservation and wise use, on which date?", options:["1 February 1982","2 February 1971","15 September 2003","30 January 2019"], answer:0},
+
+{q:"Under the Ramsar Convention, a wetland must satisfy at least how many of the nine prescribed criteria to qualify as a Wetland of International Importance?", options:["Two criteria","One criterion","Three criteria","Five criteria"], answer:1},
+
+{q:"The nine criteria under the Ramsar Convention for identifying Wetlands of International Importance cover several ecological aspects. Which of the following is NOT a relevant consideration under these criteria?", options:["Presence of threatened species","Waterbird populations","Industrial production capacity","Fish populations"], answer:2},
+
+{q:"According to the provided October 2026 data, India has 103 Ramsar Sites, representing a nearly fourfold increase from 26 sites in 2014. What is India's global position in terms of the number of Ramsar Sites?", options:["First","Second","Fourth","Third"], answer:3},
+
+{q:"India has 103 Ramsar Sites as of October 2026, covering more than 13.87 lakh hectares across its States and Union Territories. What is India's position in Asia in terms of the number of Ramsar Sites?", options:["First","Second","Third","Fourth"], answer:0},
+
+{q:"According to the October 2026 Ramsar Site statistics provided, which Indian state has the highest number of Ramsar Sites, with 20 designated wetlands?", options:["Uttar Pradesh","Tamil Nadu","Kerala","Madhya Pradesh"], answer:1},
+
+{q:"As per the October 2026 data, Uttar Pradesh ranks second among Indian states in the number of Ramsar Sites. How many Ramsar Sites does the state have?", options:["20","12","14","16"], answer:2},
+
+{q:"Surha Tal, situated in Ballia district of Uttar Pradesh, was designated as India's 100th Ramsar Site on which date?", options:["2 February 2026","1 February 1982","30 January 2019","5 June 2026"], answer:3},
+
+{q:"Glaw Lake was designated as India's 101st Ramsar Site according to the given information. In which northeastern Indian state is this lake located?", options:["Arunachal Pradesh","Assam","Meghalaya","Manipur"], answer:0},
+
+{q:"Sukhna Lake, designated as India's 102nd Ramsar Site according to the provided details, is located in which Union Territory?", options:["Delhi","Chandigarh","Jammu and Kashmir","Puducherry"], answer:1},
+
+{q:"Sauj Jheel, recognised as India's 103rd Ramsar Site according to the October 2026 information, is located in which state?", options:["Bihar","Rajasthan","Uttar Pradesh","Madhya Pradesh"], answer:2},
+
+{q:"Which of the following correctly represents the sequence of India's 100th, 101st, 102nd and 103rd Ramsar Sites, respectively, as per the given information?", options:["Surha Tal – Sukhna Lake – Glaw Lake – Sauj Jheel","Glaw Lake – Surha Tal – Sauj Jheel – Sukhna Lake","Surha Tal – Glaw Lake – Sauj Jheel – Sukhna Lake","Surha Tal – Glaw Lake – Sukhna Lake – Sauj Jheel"], answer:3},
+
+{q:"Sundarban Wetland, situated in West Bengal, is recognised as India's largest Ramsar Site. On which date was it designated as a Ramsar Site?", options:["30 January 2019","5 June 2026","2 February 1971","1 February 1982"], answer:0},
+
+{q:"Sundarban Wetland, India's largest Ramsar Site, covers approximately 4,23,000 hectares and supports the Royal Bengal Tiger population. In which Indian state is it located?", options:["Odisha","West Bengal","Assam","Kerala"], answer:1},
+
+{q:"Sundarban Wetland accounts for more than what percentage of India's total mangrove area, making it ecologically significant for biodiversity conservation?", options:["40%","50%","60%","75%"], answer:2},
+
+{q:"According to the Ramsar Site statistics provided, which country has the highest number of Ramsar Sites in the world, with 175 designated sites?", options:["Mexico","India","Australia","United Kingdom"], answer:3},
+
+{q:"mexico occupies the second position globally in terms of the number of Ramsar Sites, with approximately 142–144 sites according to the given information. Which country ranks first with 175 sites?", options:["United Kingdom","India","Mexico","France"], answer:0},
+
+{q:"In January 2025, Indore in Madhya Pradesh and Udaipur in Rajasthan became India's first two Ramsar-accredited Wetland Cities. Under which scheme were they recognised?", options:["Global Wetland Conservation Programme","Wetland City Accreditation (WCA) scheme","Man and Biosphere Programme","National Aquatic Ecosystem Programme"], answer:1},
+
+{q:"The Wetland City Accreditation (WCA) scheme of the Ramsar Convention recognises cities that take significant steps towards conserving and sustainably managing which ecosystems?", options:["Only marine ecosystems","Only agricultural wetlands","Urban and peri-urban wetlands","Only Himalayan glaciers"], answer:2},
+
+{q:"Which of the following Indian cities was nominated for Wetland City Accreditation along with Indore and Udaipur but did not receive accreditation in the January 2025 round?", options:["Bhopal","Jaipur","Lucknow","Chandigarh"], answer:0},
+
+{q:"World Wetlands Day is celebrated every year on which date to create awareness about the importance of wetlands and their conservation?", options:["5 June","2 February","22 March","16 September"], answer:1},
+
+{q:"Lonar Lake, located in Buldhana district of Maharashtra, was formed approximately 50,000 years ago due to which natural phenomenon?", options:["Volcanic eruption","Glacial movement","Meteorite impact","Tectonic plate collision"], answer:2},
+
+{q:"Lonar Lake in Maharashtra has a unique geological distinction among Indian lakes. Which of the following best describes its characteristics?", options:["India's largest freshwater lake formed by glaciers","India's largest coastal lagoon","India's only freshwater floating lake","India's only saline and alkaline lake formed by a meteorite impact"], answer:3},
+
+{q:"Lonar Lake, situated in Maharashtra, received Ramsar Site designation in which year?", options:["2020","2019","2018","2022"], answer:0},
+
+{q:"The Montreux Record is a register maintained under the Ramsar Convention to identify wetlands where changes in ecological character have occurred, are occurring or are likely to occur. When was it established?", options:["1975","1990","1993","2002"], answer:1},
+
+{q:"The Montreux Record was established during which meeting of the Conference of the Contracting Parties (COP) to the Ramsar Convention?", options:["COP2","COP3","COP4","COP5"], answer:2},
+
+{q:"Which of the following Indian Ramsar Sites was added to the Montreux Record on 4 July 1990 due to concerns regarding changes in its ecological character?", options:["Loktak Lake","Chilika Lake","Sundarban Wetland","Keoladeo National Park"], answer:3},
+
+{q:"Loktak Lake, a freshwater wetland famous for its floating islands known as Phumdis, was added to the Montreux Record on which date?", options:["16 June 1993","4 July 1990","30 January 2019","2 February 1971"], answer:0},
+
+{q:"As per the official Ramsar Convention list dated 26 March 2025, how many Ramsar Sites worldwide were included in the Montreux Record?", options:["36","46","56","66"], answer:1},
+
+{q:"Chilika Lake in Odisha was previously included in the Montreux Record but was removed in 2002 following which development?", options:["Expansion of its geographical area","Recognition as India's largest lake","Successful ecological restoration","Transfer to a national park"], answer:2},
+
+{q:"Which of the following pairs correctly identifies the two Indian Ramsar Sites currently included in the Montreux Record, according to the provided information?", options:["Chilika Lake and Loktak Lake","Sundarban Wetland and Lonar Lake","Wular Lake and Sambhar Lake","Keoladeo National Park and Loktak Lake"], answer:3},
+
+{q:"Renuka Wetland, located in Himachal Pradesh, holds a special distinction among Indian Ramsar Sites. Which of the following is associated with it?", options:["Smallest Ramsar Site in India","Largest Ramsar Site in India","Largest coastal lagoon in India","India's largest inland salt lake"], answer:0},
+
+{q:"Chilika Lake, located in Odisha, is an important Ramsar Site with a distinctive geographical feature. Which of the following correctly identifies it?", options:["Largest inland salt lake in India","Largest coastal lagoon in India","Largest freshwater lake in Northeast India","Smallest Ramsar Site in India"], answer:1},
+
+{q:"Sambhar Lake, situated in Rajasthan, is known for its salt production and ecological significance. What is its distinction among Indian lakes?", options:["Largest freshwater lake in Northeast India","Largest coastal lagoon","Largest inland salt lake","India's only meteorite-impact lake"], answer:2},
+
+{q:"Loktak Lake in Manipur is famous for its floating masses of vegetation and organic matter known as what?", options:["Coral reefs","Atolls","Mangroves","Phumdis"], answer:3},
+
+{q:"Keibul Lamjao National Park, located in Manipur, holds a unique global distinction because it is recognised as the world's only floating national park. It is situated on which lake?", options:["Loktak Lake","Wular Lake","Dal Lake","Deepor Beel"], answer:0},
+
+{q:"Which of the following is recognised as the largest freshwater lake in Northeast India and is famous for its floating Phumdis?", options:["Deepor Beel","Loktak Lake","Chandertal Lake","Rudrasagar Lake"], answer:1},
+
+{q:"Keoladeo National Park, a Ramsar Site in Rajasthan, is internationally known for its importance as a habitat for which category of wildlife?", options:["Marine mammals","Coral reef species","Migratory birds","Olive Ridley turtles"], answer:2},
+
+{q:"Bhitarkanika Mangroves, located in Odisha, are particularly significant as an important habitat for which endangered marine reptile?", options:["Green Sea Turtle","Leatherback Turtle","Hawksbill Turtle","Olive Ridley Turtle"], answer:3},
+
+{q:"Wular Lake, is recognised as one of Asia's largest freshwater lakes. In which Union Territory is it situated?", options:["Jammu and Kashmir","Ladakh","Chandigarh","Delhi"], answer:0},
+
+{q:"Patna Bird Sanctuary, designated as a Ramsar Site in January 2026 according to the given information, is located in which district and tehsil of Uttar Pradesh?", options:["Ballia district – Bansdih tehsil","Etah district – Jalesar tehsil","Agra district – Kiraoli tehsil","Gorakhpur district – Sahjanwa tehsil"], answer:1},
+
+{q:"Patna Bird Sanctuary, a freshwater wetland recognised for its importance to migratory birds, received Ramsar designation in which month and year?", options:["June 2026","October 2025","January 2026","February 2025"], answer:2},
+
+{q:"Chhari-Dhand, an important wetland habitat for migratory birds, is located in which district of Gujarat?", options:["Surat","Ahmedabad","Banaskantha","Kutch"], answer:3},
+
+{q:"Chhari-Dhand wetland is situated in which ecological region of Gujarat, known for its grassland ecosystem and migratory bird population?", options:["Banni grasslands","Gir forest","Rann of Kutch salt desert only","Narmada valley"], answer:0},
+
+{q:"Article 1 of the Ramsar Convention provides a broad definition of wetlands. Which of the following categories is included under this definition?", options:["Only natural freshwater lakes","Natural and artificial wetlands, including marshes, peatlands, rivers, lakes and coastal areas","Only marine ecosystems","Only freshwater reservoirs constructed for irrigation"], answer:1},
+
+{q:"Under the broad definition of wetlands provided in Article 1 of the Ramsar Convention, marine waters are also included up to what depth?", options:["3 metres","10 metres","6 metres","12 metres"], answer:2},
+
+{q:"Asan Conservation Reserve, recognised as the first Ramsar Site of Uttarakhand, is located near the confluence of which two rivers?", options:["Ganga and Yamuna","Beas and Sutlej","Alaknanda and Bhagirathi","Asan and Yamuna"], answer:3},
+
+{q:"Asan Conservation Reserve holds the distinction of being the first Ramsar Site of which Indian state?", options:["Uttarakhand","Uttar Pradesh","Himachal Pradesh","Punjab"], answer:0},
+
+{q:"Nalsarovar Bird Sanctuary, a natural freshwater lake and wetland famous for migratory birds, was designated as a Ramsar Site in which year?", options:["2010","2012","2015","2018"], answer:1},
+
+{q:"Nalsarovar Bird Sanctuary, an important wetland habitat for migratory birds, is located near which major city in Gujarat?", options:["Surat","Rajkot","Ahmedabad","Vadodara"], answer:2},
+
+{q:"Deepor Beel, a freshwater lake and important bird habitat, is situated near which city in Assam?", options:["Dibrugarh","Silchar","Tezpur","Guwahati"], answer:3},
+
+{q:"Which of the following correctly matches Deepor Beel with its state and nearby city?", options:["Assam – Guwahati","Manipur – Imphal","Tripura – Agartala","Meghalaya – Shillong"], answer:0},
+
+{q:"Chandertal, also known as Moon Lake, is a high-altitude glacial lake located in which Indian state?", options:["Uttarakhand","Himachal Pradesh","Jammu and Kashmir","Sikkim"], answer:1},
+
+{q:"Nilnag, a freshwater lake, is associated with which geographical region of India?", options:["Rajasthan","Gujarat","Kashmir","Assam"], answer:2},
+
+{q:"Rudrasagar Lake, a floodplain lake and important wetland, is located in which northeastern Indian state?", options:["Manipur","Assam","Meghalaya","Tripura"], answer:3},
+
+{q:"Ashtamudi Wetland, famous for its backwaters and estuarine ecosystem, is located in which Indian state?", options:["Kerala","Karnataka","Tamil Nadu","Goa"], answer:0},
+
+{q:"Which of the following statements correctly distinguishes Vembanad Lake from Ashtamudi Wetland in Kerala?", options:["Vembanad is an estuarine wetland, while Ashtamudi is a glacial lake.","Vembanad is the largest lake in Kerala, while Ashtamudi is an estuarine wetland.","Both are located in Tamil Nadu.","Vembanad is a saline meteorite-impact lake, while Ashtamudi is a coastal lagoon in Odisha."], answer:1},
+
+{q:"Ranganathittu Bird Sanctuary, an important bird habitat and wetland area, is located in which Indian state?", options:["Tamil Nadu","Kerala","Karnataka","Andhra Pradesh"], answer:2},
+
+{q:"Point Calimere Wildlife and Bird Sanctuary, an important coastal wetland ecosystem, is located in which Indian state?", options:["Kerala","Andhra Pradesh","Odisha","Tamil Nadu"], answer:3},
+
+{q:"Pallikaranai Marsh, an important urban wetland ecosystem and bird habitat, is located in which city and state?", options:["Chennai – Tamil Nadu","Kochi – Kerala","Bengaluru – Karnataka","Hyderabad – Telangana"], answer:0},
+
+{q:"Keoladeo National Park in Rajasthan is notable because its wetland ecosystem was developed through human-made water management and is internationally famous for which feature?", options:["Floating islands","Migratory birds","Meteorite impact","Mangrove forests"], answer:1},
+
+{q:"Harike Wetland, an important freshwater wetland in Punjab, is located at the confluence of which two rivers?", options:["Ganga and Yamuna","Krishna and Godavari","Beas and Sutlej","Ravi and Chenab"], answer:2},
+
+{q:"Bhoj Wetland, an important Ramsar Site comprising two lakes, is located in which Indian state?", options:["Rajasthan","Uttar Pradesh","Punjab","Madhya Pradesh"], answer:3},
+
+{q:"Which of the following pairs of Ramsar Sites and Indian states is INCORRECTLY matched?", options:["Bhoj Wetland – Punjab","Deepor Beel – Assam","Ashtamudi Wetland – Kerala","Loktak Lake – Manipur"], answer:0},
+
+{q:"Consider the following pairs of Ramsar Sites and their associated states: 1. Chilika Lake – Odisha 2. Loktak Lake – Manipur 3. Lonar Lake – Maharashtra 4. Sundarban Wetland – West Bengal. Which of the above pairs are correctly matched?", options:["Only 1 and 2","All 1, 2, 3 and 4","Only 2 and 3","Only 1, 3 and 4"], answer:1},
+
+{q:"Which of the following Ramsar Sites is correctly matched with its unique ecological feature?", options:["Sambhar Lake – Floating Phumdis","Renuka Wetland – Largest coastal lagoon","Loktak Lake – Floating islands called Phumdis","Lonar Lake – Largest freshwater lake in Northeast India"], answer:2},
+
+{q:"Which of the following is the correct sequence of Indian Ramsar Sites according to their respective states?", options:["Nalsarovar – Rajasthan; Loktak – Assam; Deepor Beel – Manipur","Chilika – West Bengal; Sundarban – Odisha; Bhoj – Punjab","Ashtamudi – Karnataka; Harike – Haryana; Lonar – Gujarat","Chilika – Odisha; Deepor Beel – Assam; Ashtamudi – Kerala; Bhoj – Madhya Pradesh"], answer:3},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 2700;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
